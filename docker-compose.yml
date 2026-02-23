@@ -7,7 +7,6 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
-      - ./:/var/www/html
       - ./storage/app:/var/www/html/storage/app
     networks:
       - interno-network
