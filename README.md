@@ -76,13 +76,13 @@ Sistema de gestión interna para la prosecretaría de la Honorable Cámara de Di
 
 3. **Levantar contenedores**
    ```bash
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 
 4. **Ejecutar migraciones y seeders**
    ```bash
-   docker-compose exec app php artisan migrate
-   docker-compose exec app php artisan db:seed
+   docker compose exec app php artisan migrate
+   docker compose exec app php artisan db:seed
    ```
 
 5. **Acceder a la aplicación**
