@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('activo')->default(true);
-            $table->foreignId('oficina_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedBigInteger('oficina_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
