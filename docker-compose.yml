@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: interno-prosecretaria-internas-prod
+    container_name: interno-prosecretaria-prod
     env_file:
       - .env
     volumes:
