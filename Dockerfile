@@ -1,64 +1,61 @@
-# Usar imagen base de PHP con las extensiones necesarias
-FROM php:8.2-fpm
+# ===== Stage 1: Frontend build (Vite) =====
+FROM node:20-alpine AS frontend
+WORKDIR /app
 
-# Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    libzip-dev \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libmcrypt-dev \
-    libgd-dev \
-    nginx \
-    supervisor \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath zip
+COPY package*.json ./
+RUN npm ci
 
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copiar código de la aplicación
-COPY . /var/www/html
-
-# Instalar Node
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
-# Instalar dependencias frontend
-RUN npm install
-
-# Build producción
+COPY . .
 RUN npm run build
 
-# Establecer permisos
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Instalar dependencias de PHP
-RUN composer install --no-dev --optimize-autoloader
+# ===== Stage 2: Composer deps =====
+FROM composer:2 AS vendor
+WORKDIR /app
 
-# Copiar configuración de nginx
-COPY docker/nginx.conf /etc/nginx/sites-available/default
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# Copiar configuración de supervisor
+COPY . .
+RUN composer dump-autoload --optimize
+
+
+# ===== Stage 3: Final image (PHP-FPM + Nginx) =====
+FROM php:8.2-fpm
+
+# System deps + nginx + supervisor
+RUN apt-get update && apt-get install -y \
+    nginx supervisor \
+    git curl unzip zip \
+    libpng-dev libonig-dev libxml2-dev libzip-dev \
+    libfreetype6-dev libjpeg62-turbo-dev \
+  && docker-php-ext-configure gd --with-freetype --with-jpeg \
+  && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring exif pcntl bcmath zip \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www/html
+
+# App code
+COPY . /var/www/html
+
+# Vendor deps
+COPY --from=vendor /app/vendor /var/www/html/vendor
+
+# Vite build output
+COPY --from=frontend /app/public/build /var/www/html/public/build
+
+# Nginx + supervisor + entrypoint
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Exponer puerto 85
-EXPOSE 85
-
-# Copiar entrypoint que arregla permisos al arrancar
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Permissions (igual se re-chequea en entrypoint)
+RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+ && chown -R www-data:www-data storage bootstrap/cache \
+ && chmod -R ug+rwX storage bootstrap/cache
 
-# Comando de inicio
+EXPOSE 80
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
