@@ -32,6 +32,8 @@ RUN apt-get update && apt-get install -y \
   && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring exif pcntl bcmath zip \
   && rm -rf /var/lib/apt/lists/*
 
+RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
+
 WORKDIR /var/www/html
 
 COPY . /var/www/html
