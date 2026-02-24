@@ -41,8 +41,8 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 # Copiar configuración de supervisor
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Exponer puerto 84
-EXPOSE 84
+# Exponer puerto 85
+EXPOSE 85
 
 # Copiar entrypoint que arregla permisos al arrancar
 COPY docker/entrypoint.sh /entrypoint.sh
