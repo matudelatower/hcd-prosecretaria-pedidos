@@ -105,6 +105,10 @@ Sistema de gestión interna para la prosecretaría de la Honorable Cámara de Di
 - `resources/views/` - Vistas Blade
 - `docker/` - Configuración de Docker
 
+## Deploy
+
+Para deployar en producción, seguir los pasos en `DEPLOY.md`.
+
 ## Licencia
 
 Este proyecto es software de código abierto licenciado bajo la licencia MIT.

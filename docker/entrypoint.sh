@@ -1,36 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+set -e
 
-# Wait for database to be ready
-echo "Waiting for MySQL to be ready..."
-while ! mysqladmin ping -h mysql --silent; do
-    echo "MySQL is unavailable - sleeping for 2 seconds"
-    sleep 2
-done
+# Carpetas que Laravel necesita sí o sí
+mkdir -p \
+  /var/www/html/storage/framework/cache/data \
+  /var/www/html/storage/framework/sessions \
+  /var/www/html/storage/framework/views \
+  /var/www/html/storage/logs \
+  /var/www/html/bootstrap/cache
 
-echo "MySQL is ready!"
+# Permisos (clave cuando storage viene montado desde el host)
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R ug+rwX /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Run Laravel migrations and seeders
-echo "Running database migrations..."
-php artisan migrate --force
-
-echo "Running database seeders..."
-php artisan db:seed --force
-
-# Clear and cache Laravel configurations
-echo "Optimizing Laravel..."
-php artisan config:clear
-php artisan config:cache
-php artisan route:clear
-php artisan route:cache
-php artisan view:clear
-php artisan view:cache
-
-# Set proper permissions
-echo "Setting permissions..."
-chown -R www-data:www-data /var/www/html/storage
-chown -R www-data:www-data /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage
-chmod -R 775 /var/www/html/bootstrap/cache
-
-# Start the application
 exec "$@"
