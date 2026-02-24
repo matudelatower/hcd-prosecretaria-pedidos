@@ -27,6 +27,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copiar código de la aplicación
 COPY . /var/www/html
 
+# Instalar Node
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# Instalar dependencias frontend
+RUN npm install
+
+# Build producción
+RUN npm run build
+
 # Establecer permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
