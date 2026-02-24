@@ -9,34 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap4-theme@1.0.0/dist/select2-bootstrap4.min.css">
-    <style>
-        .select2-container--bootstrap4 .select2-selection--single {
-            height: 38px;
-            line-height: 1.5;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
-            line-height: 36px;
-            padding-left: 12px;
-            padding-right: 12px;
-        }
-        .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
-            height: 36px;
-            right: 5px;
-        }
-        .select2-results__option {
-            padding: 8px 12px;
-        }
-        .input-group .select2-container--bootstrap4 {
-            flex: 1;
-        }
-        .input-group-append {
-            margin-left: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">    
+    
     @stack('styles')
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -76,7 +51,8 @@
 <!-- Bootstrap 4 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Select2 -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/i18n/es.js"></script>
 <!-- Toastr -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">

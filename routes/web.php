@@ -45,16 +45,16 @@ Route::middleware('auth')->group(function () {
         Route::resource('areas', AreaController::class);
         Route::resource('edificios', EdificioController::class);
         Route::resource('oficinas', OficinaController::class);
+        // Rutas para solicitantes (las rutas específicas van antes del resource)
+        Route::get('solicitantes/search', [SolicitanteController::class, 'search'])->name('solicitantes.search');
+        Route::post('solicitantes/store-quick', [SolicitanteController::class, 'storeQuick'])->name('solicitantes.storeQuick');
         Route::resource('solicitantes', SolicitanteController::class);
         Route::resource('pedidos', PedidoController::class);
         
         Route::post('pedidos/{pedido}/recibir', [PedidoController::class, 'recibir'])->name('pedidos.recibir');
         Route::post('pedidos/{pedido}/enviar', [PedidoController::class, 'enviar'])->name('pedidos.enviar');
-        Route::post('pedidos/{pedido}/entregar', [PedidoController::class, 'entregar'])->name('pedidos.entregar');
+        Route::post('pedidos/{pedido}/entregar', [PedidoController::class, 'entregar'])->name('pedidos.entregar');        
         
-        // Rutas para solicitantes (las rutas específicas van antes del resource)
-        Route::get('solicitantes/search', [SolicitanteController::class, 'search'])->name('solicitantes.search');
-        Route::post('solicitantes/store-quick', [SolicitanteController::class, 'storeQuick'])->name('solicitantes.storeQuick');
     });
 });
 
