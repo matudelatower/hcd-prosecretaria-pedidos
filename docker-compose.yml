@@ -43,8 +43,6 @@ services:
 
 volumes:
   db_data:
-    external: true
-    name: hcd-prosecretaria-pedidos_mysql_data
   redis_data:
 
 networks:
