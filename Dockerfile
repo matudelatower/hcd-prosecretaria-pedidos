@@ -13,17 +13,16 @@ RUN npm run build
 FROM composer:2 AS vendor
 WORKDIR /app
 
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+# Copiá TODO primero para que exista artisan
+COPY . /app
 
-COPY . .
-RUN composer dump-autoload --optimize
+# Instalar vendors (ahora artisan existe)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 
 # ===== Stage 3: Final image (PHP-FPM + Nginx) =====
 FROM php:8.2-fpm
 
-# System deps + nginx + supervisor
 RUN apt-get update && apt-get install -y \
     nginx supervisor \
     git curl unzip zip \
@@ -35,22 +34,15 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www/html
 
-# App code
 COPY . /var/www/html
-
-# Vendor deps
 COPY --from=vendor /app/vendor /var/www/html/vendor
-
-# Vite build output
 COPY --from=frontend /app/public/build /var/www/html/public/build
 
-# Nginx + supervisor + entrypoint
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Permissions (igual se re-chequea en entrypoint)
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
  && chown -R www-data:www-data storage bootstrap/cache \
  && chmod -R ug+rwX storage bootstrap/cache
