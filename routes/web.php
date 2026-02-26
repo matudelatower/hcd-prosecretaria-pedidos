@@ -49,11 +49,13 @@ Route::middleware('auth')->group(function () {
         Route::get('solicitantes/search', [SolicitanteController::class, 'search'])->name('solicitantes.search');
         Route::post('solicitantes/store-quick', [SolicitanteController::class, 'storeQuick'])->name('solicitantes.storeQuick');
         Route::resource('solicitantes', SolicitanteController::class);
-        Route::resource('pedidos', PedidoController::class);
+        
         
         Route::post('pedidos/{pedido}/recibir', [PedidoController::class, 'recibir'])->name('pedidos.recibir');
         Route::post('pedidos/{pedido}/enviar', [PedidoController::class, 'enviar'])->name('pedidos.enviar');
-        Route::post('pedidos/{pedido}/entregar', [PedidoController::class, 'entregar'])->name('pedidos.entregar');        
+        Route::post('pedidos/{pedido}/entregar', [PedidoController::class, 'entregar'])->name('pedidos.entregar');
+        Route::post('pedidos/{pedido}/completar', [PedidoController::class, 'completar'])->name('pedidos.completar');
+        Route::resource('pedidos', PedidoController::class);
         
     });
 });

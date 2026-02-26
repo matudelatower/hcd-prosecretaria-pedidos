@@ -33,9 +33,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="solicitado_por_texto">Solicitado Por <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="solicitado_por_texto" name="solicitado_por_texto" value="{{ old('solicitado_por_texto', $pedido->solicitado_por_texto) }}" required>
-                        <small class="form-text text-muted">Ej: Concejal Cardozo, Prosecretaría Legislativa, etc.</small>
+                        <label for="solicitado_por_nombre">Solicitado Por <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="solicitado_por_nombre" value="{{ $pedido->solicitado_por_nombre }}" readonly>
+                        <small class="form-text text-muted">Este campo no se puede modificar</small>
                     </div>
 
                     <div class="form-group">
@@ -75,13 +75,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="fecha_envio">Fecha de Envío</label>
+                                <label for="fecha_envio">Fecha de Envío/Entrega</label>
                                 <input type="date" class="form-control" id="fecha_envio" name="fecha_envio" value="{{ old('fecha_envio', $pedido->fecha_envio ? $pedido->fecha_envio->format('Y-m-d') : '') }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="enviado_por">Enviado Por</label>
+                                <label for="enviado_por">Enviado Por/Entregado Por</label>
                                 <select class="form-control" id="enviado_por" name="enviado_por">
                                     <option value="">Seleccione...</option>
                                     @foreach($usuarios as $usuario)
@@ -95,13 +95,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="recibido_destino_por_texto">Recibido en Destino Por</label>
+                        <label for="recibido_destino_por_texto">Recibido en Destino Por/Entregado A</label>
                         <input type="text" class="form-control" id="recibido_destino_por_texto" name="recibido_destino_por_texto" value="{{ old('recibido_destino_por_texto', $pedido->recibido_destino_por_texto) }}">
                         <small class="form-text text-muted">Persona que recibe en el área de destino (firma "recibo conforme")</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="fecha_recibido_destino">Fecha de Recibido en Destino</label>
+                        <label for="fecha_recibido_destino">Fecha de Recibido en Destino/Entregado</label>
                         <input type="date" class="form-control" id="fecha_recibido_destino" name="fecha_recibido_destino" value="{{ old('fecha_recibido_destino', $pedido->fecha_recibido_destino ? $pedido->fecha_recibido_destino->format('Y-m-d') : '') }}">
                     </div>
 
@@ -112,6 +112,7 @@
                             <option value="recibido" {{ old('estado', $pedido->estado) == 'recibido' ? 'selected' : '' }}>Recibido</option>
                             <option value="enviado" {{ old('estado', $pedido->estado) == 'enviado' ? 'selected' : '' }}>Enviado</option>
                             <option value="entregado" {{ old('estado', $pedido->estado) == 'entregado' ? 'selected' : '' }}>Entregado</option>
+                            <option value="completado" {{ old('estado', $pedido->estado) == 'completado' ? 'selected' : '' }}>Completado</option>
                         </select>
                     </div>
 

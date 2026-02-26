@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Edificio;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EdificioController extends Controller
 {
     public function index()
     {
-        $edificios = Edificio::with('oficinas')->get();
+        $edificios = Edificio::with('oficinas')->whereNull('deleted_at')->get();
         return view('admin.edificios.index', compact('edificios'));
     }
 
     public function create()
     {
+        $edificios = Edificio::whereNull('deleted_at')->get();
         return view('admin.edificios.create');
     }
 
@@ -63,6 +65,11 @@ class EdificioController extends Controller
 
     public function destroy(Edificio $edificio)
     {
+        if (!Auth::user()->isAdmin()) {
+            return redirect()->back()
+                ->with('error', 'No autorizado. Solo los administradores pueden eliminar registros.');
+        }
+        
         $edificio->delete();
         return redirect()->route('admin.edificios.index')
             ->with('success', 'Edificio eliminado correctamente.');

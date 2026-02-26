@@ -38,6 +38,9 @@
                                 @case('entregado')
                                     <span class="badge badge-success">Entregado</span>
                                     @break
+                                @case('completado')
+                                    <span class="badge badge-primary">Completado</span>
+                                    @break
                             @endswitch
                         </p>
                         
@@ -68,25 +71,51 @@
                 @endif
             </div>
             <div class="card-footer">
-                <a href="{{ route('admin.pedidos.edit', $pedido) }}" class="btn btn-warning">Editar</a>
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('admin.pedidos.edit', $pedido) }}" class="btn btn-warning">Editar</a>
+                @endif
                 <a href="{{ route('admin.pedidos.index') }}" class="btn btn-secondary">Volver</a>
                 
                 @if($pedido->estado == 'solicitado')
-                    <a href="{{ route('admin.pedidos.recibir', $pedido) }}" class="btn btn-success">
-                        <i class="fas fa-check"></i> Recibir Pedido
-                    </a>
+                    <form id="recibirForm" action="{{ route('admin.pedidos.recibir', $pedido) }}" method="POST" class="d-inline">
+                        @csrf
+                        <input type="hidden" name="recibido_por" value="{{ auth()->user()->id }}">
+                        <input type="hidden" name="fecha_recepcion" value="{{ now()->format('Y-m-d') }}">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Recibir Pedido
+                        </button>
+                    </form>
                 @endif
                 
                 @if($pedido->estado == 'recibido')
-                    <a href="{{ route('admin.pedidos.enviar', $pedido) }}" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i> Enviar Pedido
-                    </a>
+                    <form id="enviarForm" action="{{ route('admin.pedidos.enviar', $pedido) }}" method="POST" class="d-inline">
+                        @csrf
+                        <input type="hidden" name="enviado_por" value="{{ auth()->user()->id }}">
+                        <input type="hidden" name="fecha_envio" value="{{ now()->format('Y-m-d') }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Enviar Pedido
+                        </button>
+                    </form>
                 @endif
                 
                 @if($pedido->estado == 'enviado')
-                    <a href="{{ route('admin.pedidos.entregar', $pedido) }}" class="btn btn-success">
-                        <i class="fas fa-check-double"></i> Entregar Pedido
-                    </a>
+                    <form id="entregarForm" action="{{ route('admin.pedidos.entregar', $pedido) }}" method="POST" class="d-inline">
+                        @csrf
+                        <input type="hidden" name="recibido_destino_por_usuario" value="{{ auth()->user()->id }}">
+                        <input type="hidden" name="fecha_recibido_destino" value="{{ now()->format('Y-m-d') }}">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-double"></i> Entregar Pedido
+                        </button>
+                    </form>
+                @endif
+                
+                @if($pedido->estado == 'entregado')
+                    <form action="{{ route('admin.pedidos.completar', $pedido) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-success" onclick="return confirm('¿Está seguro de completar este pedido?')">
+                            <i class="fas fa-check-circle"></i> Completar Pedido
+                        </button>
+                    </form>
                 @endif
             </div>
         </div>

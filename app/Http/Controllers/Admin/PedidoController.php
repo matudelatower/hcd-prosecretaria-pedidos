@@ -8,12 +8,13 @@ use App\Models\Pedido;
 use App\Models\Solicitante;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PedidoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Pedido::with(['solicitadoPor', 'areaDestino']);
+        $query = Pedido::with(['solicitadoPor', 'areaDestino'])->whereNull('deleted_at');
 
         // Filtros
         if ($request->filled('estado')) {
@@ -33,16 +34,16 @@ class PedidoController extends Controller
         }
 
         $pedidos = $query->orderBy('created_at', 'desc')->paginate(10);
-        $areas = Area::where('activo', true)->get();
-        $usuarios = User::where('activo', true)->get();
+        $areas = Area::where('activo', true)->whereNull('deleted_at')->get();
+        $usuarios = User::where('activo', true)->whereNull('deleted_at')->get();
 
         return view('admin.pedidos.index', compact('pedidos', 'areas', 'usuarios'));
     }
 
     public function create()
     {
-        $areas = Area::where('activo', true)->get();
-        $usuarios = User::where('activo', true)->get();
+        $areas = Area::where('activo', true)->whereNull('deleted_at')->get();
+        $usuarios = User::where('activo', true)->whereNull('deleted_at')->get();
         return view('admin.pedidos.create', compact('areas', 'usuarios'));
     }
 
@@ -79,8 +80,9 @@ class PedidoController extends Controller
 
     public function edit(Pedido $pedido)
     {
-        $areas = Area::where('activo', true)->get();
-        $usuarios = User::where('activo', true)->get();
+        $pedido->load(['solicitadoPor', 'solicitadoPorUsuario', 'areaDestino']);
+        $areas = Area::where('activo', true)->whereNull('deleted_at')->get();
+        $usuarios = User::where('activo', true)->whereNull('deleted_at')->get();
         return view('admin.pedidos.edit', compact('pedido', 'areas', 'usuarios'));
     }
 
@@ -90,7 +92,6 @@ class PedidoController extends Controller
             'numero_expediente' => 'nullable|string|max:255',
             'descripcion' => 'required|string',
             'fecha_solicitud' => 'required|date',
-            'solicitado_por_id' => 'required|exists:solicitantes,id',
             'area_destino_id' => 'required|exists:areas,id',
             'fecha_recepcion' => 'nullable|date',
             'recibido_por' => 'nullable|exists:users,id',
@@ -99,11 +100,11 @@ class PedidoController extends Controller
             'recibido_destino_por_id' => 'nullable|exists:solicitantes,id',
             'recibido_destino_por_usuario' => 'nullable|exists:users,id',
             'fecha_recibido_destino' => 'nullable|date',
-            'estado' => 'required|in:solicitado,recibido,enviado,entregado',
+            'estado' => 'required|in:solicitado,recibido,enviado,entregado,completado',
             'observaciones' => 'nullable|string',
         ]);
 
-        $pedido->update($request->all());
+        $pedido->update($request->except(['solicitado_por_id']));
 
         return redirect()->route('admin.pedidos.index')
             ->with('success', 'Pedido actualizado correctamente.');
@@ -111,6 +112,11 @@ class PedidoController extends Controller
 
     public function destroy(Pedido $pedido)
     {
+        if (!Auth::user()->isAdmin()) {
+            return redirect()->back()
+                ->with('error', 'No autorizado. Solo los administradores pueden eliminar registros.');
+        }
+        
         $pedido->delete();
         return redirect()->route('admin.pedidos.index')
             ->with('success', 'Pedido eliminado correctamente.');
@@ -130,7 +136,8 @@ class PedidoController extends Controller
             'estado' => 'recibido',
         ]);
 
-        return response()->json(['success' => true]);
+        return redirect()->route('admin.pedidos.show', $pedido)
+            ->with('success', 'Pedido recibido correctamente.');
     }
 
     public function enviar(Request $request, Pedido $pedido)
@@ -146,7 +153,8 @@ class PedidoController extends Controller
             'estado' => 'enviado',
         ]);
 
-        return response()->json(['success' => true]);
+        return redirect()->route('admin.pedidos.show', $pedido)
+            ->with('success', 'Pedido enviado correctamente.');
     }
 
     public function entregar(Request $request, Pedido $pedido)
@@ -164,6 +172,15 @@ class PedidoController extends Controller
             'estado' => 'entregado',
         ]);
 
-        return response()->json(['success' => true]);
+        return redirect()->route('admin.pedidos.show', $pedido)
+            ->with('success', 'Pedido entregado correctamente.');
+    }
+
+    public function completar(Pedido $pedido)
+    {
+        $pedido->update(['estado' => 'completado']);
+
+        return redirect()->route('admin.pedidos.show', $pedido)
+            ->with('success', 'Pedido completado correctamente.');
     }
 }

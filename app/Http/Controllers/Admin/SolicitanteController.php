@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Solicitante;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SolicitanteController extends Controller
 {
     public function index()
     {
-        $solicitantes = Solicitante::orderBy('nombre')->get();
+        $solicitantes = Solicitante::whereNull('deleted_at')->orderBy('nombre')->get();
         return view('admin.solicitantes.index', compact('solicitantes'));
     }
 
@@ -64,6 +65,11 @@ class SolicitanteController extends Controller
 
     public function destroy(Solicitante $solicitante)
     {
+        if (!Auth::user()->isAdmin()) {
+            return redirect()->back()
+                ->with('error', 'No autorizado. Solo los administradores pueden eliminar registros.');
+        }
+        
         // Verificar si tiene pedidos asociados
         if ($solicitante->pedidosSolicitados->count() > 0 || $solicitante->pedidosRecibidosDestino->count() > 0) {
             return redirect()->route('admin.solicitantes.index')

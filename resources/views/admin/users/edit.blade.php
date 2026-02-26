@@ -46,6 +46,22 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="roles">Roles <span class="text-danger">*</span></label>
+                        @foreach($roles as $role)
+                        <div class="custom-control custom-checkbox mb-2">
+                            <input type="checkbox" class="custom-control-input" id="role_{{ $role->id }}" name="roles[]" value="{{ $role->id }}" 
+                                   {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="role_{{ $role->id }}">
+                                {{ ucfirst($role->name) }}
+                                @if($role->description)
+                                    <small class="text-muted">({{ $role->description }})</small>
+                                @endif
+                            </label>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <div class="form-group">
                         <div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input" id="activo" name="activo" value="1" {{ old('activo', $user->activo) ? 'checked' : '' }}>
                             <label class="custom-control-label" for="activo">Usuario Activo</label>

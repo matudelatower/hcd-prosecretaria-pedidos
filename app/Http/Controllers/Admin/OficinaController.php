@@ -6,18 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\Edificio;
 use App\Models\Oficina;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OficinaController extends Controller
 {
     public function index()
     {
-        $oficinas = Oficina::with('edificio')->get();
+        $oficinas = Oficina::with('edificio')->whereNull('deleted_at')->get();
         return view('admin.oficinas.index', compact('oficinas'));
     }
 
     public function create()
     {
-        $edificios = Edificio::all();
+        $edificios = Edificio::whereNull('deleted_at')->get();
         return view('admin.oficinas.create', compact('edificios'));
     }
 
@@ -46,7 +47,7 @@ class OficinaController extends Controller
 
     public function edit(Oficina $oficina)
     {
-        $edificios = Edificio::all();
+        $edificios = Edificio::whereNull('deleted_at')->get();
         return view('admin.oficinas.edit', compact('oficina', 'edificios'));
     }
 
@@ -70,6 +71,11 @@ class OficinaController extends Controller
 
     public function destroy(Oficina $oficina)
     {
+        if (!Auth::user()->isAdmin()) {
+            return redirect()->back()
+                ->with('error', 'No autorizado. Solo los administradores pueden eliminar registros.');
+        }
+        
         $oficina->delete();
         return redirect()->route('admin.oficinas.index')
             ->with('success', 'Oficina eliminada correctamente.');

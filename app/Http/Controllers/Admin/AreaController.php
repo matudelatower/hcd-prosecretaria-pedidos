@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Area;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AreaController extends Controller
 {
     public function index()
     {
-        $areas = Area::all();
+        $areas = Area::whereNull('deleted_at')->get();
         return view('admin.areas.index', compact('areas'));
     }
 
@@ -67,6 +68,11 @@ class AreaController extends Controller
 
     public function destroy(Area $area)
     {
+        if (!Auth::user()->isAdmin()) {
+            return redirect()->back()
+                ->with('error', 'No autorizado. Solo los administradores pueden eliminar registros.');
+        }
+        
         $area->delete();
         return redirect()->route('admin.areas.index')
             ->with('success', 'Área eliminada correctamente.');
